@@ -85,10 +85,16 @@ sshpass -p $mysqlsifreniz mysqldump -u $mysql_kullanici_adi -p$1 ${u} > $mysql_s
 echo "HAZIR > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}"
 done
 
+	echo "......."
+	echo "......."
+		echo "VERITABANLARI SQL FORMATINDA YEDEKLENDI: $mysql_sql_yedek_klasoru/$tarih"
+	echo "......."
+	echo "......."
+	
+	
 tar cvzf $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz $mysql_sql_yedek_klasoru/$tarih
 
-echo "TUM VERI TABANLARI YEDEKLENDI"
-echo "DOSYA YOLU : $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz"
+echo "TUM VERI TABANLARI tar.gz formatinda YEDEKLENDI: $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz"
 
 if [ -z $yedek_sunucu_ip ]; then
 echo "Yedekleme aktif edilmedigi icin ayri bir sunucuya gonderilmedi."
