@@ -49,19 +49,19 @@ mysql_sql_yedek_klasoru="$mysql_ana_yedek_klasoru/$mysql_sql_yedek_klasoru_ismi"
 tarih=`date +"%d.%m.%Y"`
 zaman=`date +"%d.%m.%Y-%T"`
 
-echo "home dizininde $mysql_sql_yedek_klasoru klasoru var mi."
+#echo "home dizininde $mysql_sql_yedek_klasoru klasoru var mi."
 if [ -d $mysql_sql_yedek_klasoru ]; then
-echo "home dizininde $mysql_sql_yedek_klasoru klasoru var."
+echo ">>>>> home dizininde $mysql_sql_yedek_klasoru klasoru var."
 else
-echo "home dizininde $mysql_sql_yedek_klasoru klasoru yok ama simdi olusturuyorum."
+#echo ">>>>> home dizininde $mysql_sql_yedek_klasoru klasoru yok ama simdi olusturuyorum."
 
 	if [ -d $mysql_ana_yedek_klasoru ]; then
 		mkdir $mysql_sql_yedek_klasoru
-		echo "mysql_yedek ve sql_yedek klasorleri olusturuldu."
+		echo ">>>>> mysql_yedek klasor vardi ve sql_yedek klasoru olusturuldu."
 	else
 		mkdir $mysql_ana_yedek_klasoru
 		mkdir $mysql_sql_yedek_klasoru
-		echo "sql_yedek klasoru olusturuldu."
+		echo ">>>>> mysql_yedek ve sql_yedek klasoru olusturuldu."
 	fi
 fi
 
@@ -69,22 +69,31 @@ fi
 #eski yedekler icin klasor olusturulur
 if [ -d $mysql_ana_yedek_klasoru/eski_yedekler ]; then
 rm -rf $mysql_ana_yedek_klasoru/eski_yedekler/*
- echo "eski_yedekler klasoru bosaltildi"
+
+ echo ">>>>> \"eski_yedekler\" klasoru olusturuldu"
+
+	#sql_yedekler Klasor ici doluysa tasima islemini yapariz.
+	if [ "$(ls -A $mysql_sql_yedek_klasoru)" ]; then
  
- ##Onceki yedekleri, eski_yedekler klasorune tasiriz.
- echo "onceki yedekler, eski_yedekler klasorune tasinir."
- mv $mysql_sql_yedek_klasoru/* $mysql_ana_yedek_klasoru/eski_yedekler/
+		mv $mysql_sql_yedek_klasoru/* $mysql_ana_yedek_klasoru/eski_yedekler/
+		
+		##Onceki yedekleri, eski_yedekler klasorune tasiriz.
+		echo ">>>>> Onceki yedekler, eski_yedekler klasorune tasindi."
+	fi
 
 
-echo "Eski yedekler klasoru bosaltildi"
 else
  mkdir $mysql_ana_yedek_klasoru/eski_yedekler
- echo "eski_yedekler klasoru olusturuldu"
- 
- ##Onceki yedekleri, eski_yedekler klasorune tasiriz.
- echo "onceki yedekler, eski_yedekler klasorune tasinir."
- mv $mysql_sql_yedek_klasoru/* $mysql_ana_yedek_klasoru/eski_yedekler/
+ echo ">>>>> \"eski_yedekler\" klasoru olusturuldu"
 
+	#sql_yedekler Klasor ici doluysa tasima islemini yapariz.
+	if [ "$(ls -A $mysql_sql_yedek_klasoru)" ]; then
+ 
+		mv $mysql_sql_yedek_klasoru/* $mysql_ana_yedek_klasoru/eski_yedekler/
+		
+		##Onceki yedekleri, eski_yedekler klasorune tasiriz.
+		echo ">>>>> Onceki yedekler, eski_yedekler klasorune tasindi."
+	fi
 fi
 
 
@@ -114,14 +123,14 @@ for u in $_db
 do
 
 sshpass -p $mysqlsifreniz mysqldump -u $mysql_kullanici_adi -p$1 ${u} > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}.sql
-echo "YEDEKLENDI > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}"
+echo ">>>>> YEDEKLENDI > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}"
 done
 
 	echo "......."
 	echo "......."
 	echo "......."
 	echo "......."
-		echo "VERITABANLARI SQL FORMATINDA YEDEKLENDI: $mysql_sql_yedek_klasoru/$tarih"
+		echo ">>>>> VERITABANLARI SQL FORMATINDA YEDEKLENDI: $mysql_sql_yedek_klasoru/$tarih"
 	echo "......."
 	echo "......."
 	echo "......."
@@ -132,19 +141,19 @@ done
 	echo "......."
 	echo "......."
 	echo "......."
-		echo "SQL formatindaki butun veritabanlari tar.gz formatinda tek dosyada birlestiriliyor (ayri olarak).."
+		echo ">>>>> SQL formatindaki butun veritabanlari tar.gz formatinda tek dosyada birlestiriliyor (ayri olarak).."
 	echo "......."
 	echo "......."
 	echo "......."
 	echo "......."
 	
-tar cvzf $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz $mysql_sql_yedek_klasoru/$tarih
+tar cvzf $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz --absolute-names $mysql_sql_yedek_klasoru/$tarih
 
 	echo "......."
 	echo "......."
 	echo "......."
 	echo "......."
-		echo "tar.gz formatinda birlestirme bitti. Simdi tar.gz formatindaki yedegi tarihsel klasore tasiyoruz."
+		echo ">>>>> tar.gz formatinda birlestirme bitti. Simdi tar.gz formatindaki yedegi tarihsel klasore tasiyoruz."
 	echo "......."
 	echo "......."
 	echo "......."
@@ -155,20 +164,20 @@ mv $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz $mysql_sql_yedek_klasoru/$tarih/
 	echo "......."
 	echo "......."
 	echo "......."
-		echo "TUM VERI TABANLARI tar.gz formatinda YEDEKLENDI: $mysql_ana_yedek_klasoru/$tarih/$zaman-mysql.tar.gz"
+		echo ">>>>> TUM VERI TABANLARI tar.gz formatinda YEDEKLENDI: $mysql_ana_yedek_klasoru/$tarih/$zaman-mysql.tar.gz"
 	echo "......."
 	echo "......."
 	echo "......."
 	echo "......."
 
 if [ -z $yedek_sunucu_ip ]; then
-echo "Yedekleme aktif edilmedigi icin ayri bir sunucuya gonderilmedi."
+echo ">>>>> Yedekleme aktif edilmedigi icin ayri bir sunucuya gonderilmedi."
 else
 	echo "......."
 	echo "......."
 	echo "......."
 	echo "......."
-		echo "Simdi mysql yedeklerini, belirledigmiz yedek sunucuya gonderiyoruz (rsync)"
+		echo ">>>>> Simdi mysql yedeklerini, belirledigmiz yedek sunucuya gonderiyoruz (rsync)"
 	echo "......."
 	echo "......."
 	echo "......."
@@ -181,7 +190,7 @@ else
 	echo "......."
 	echo "......."
 	echo "......."
-		echo "Yedekleme islemide bitti.."
+		echo ">>>>> Yedekleme islemide bitti.."
 	echo "......."
 	echo "......."
 	echo "......."
@@ -191,7 +200,7 @@ else
 	echo "......."
 	echo "......."
 	echo "......."
-	echo "Eski dosyalar silinmeye basliyor (son yedek haric)"
+	echo ">>>>> Eski dosyalar silinmeye basliyor (son yedek haric)"
 	echo "......."
 	echo "......."
 	echo "......."
@@ -201,7 +210,7 @@ else
 	echo "......."
 	echo "......."
 	echo "......."
-	echo "Silme islemi basarili"
+	echo ">>>>> Silme islemi basarili"
 	echo "......."
 	echo "......."
 	echo "......."
