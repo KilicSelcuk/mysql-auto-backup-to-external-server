@@ -65,6 +65,29 @@ echo "home dizininde $mysql_sql_yedek_klasoru klasoru yok ama simdi olusturuyoru
 	fi
 fi
 
+
+#eski yedekler icin klasor olusturulur
+if [ -d $mysql_ana_yedek_klasoru/eski_yedekler ]; then
+rm -rf $mysql_ana_yedek_klasoru/eski_yedekler/*
+ echo "eski_yedekler klasoru bosaltildi"
+ 
+ ##Onceki yedekleri, eski_yedekler klasorune tasiriz.
+ echo "onceki yedekler, eski_yedekler klasorune tasinir."
+ mv $mysql_sql_yedek_klasoru/* $mysql_ana_yedek_klasoru/eski_yedekler/
+
+
+echo "Eski yedekler klasoru bosaltildi"
+else
+ mkdir $mysql_ana_yedek_klasoru/eski_yedekler
+ echo "eski_yedekler klasoru olusturuldu"
+ 
+ ##Onceki yedekleri, eski_yedekler klasorune tasiriz.
+ echo "onceki yedekler, eski_yedekler klasorune tasinir."
+ mv $mysql_sql_yedek_klasoru/* $mysql_ana_yedek_klasoru/eski_yedekler/
+
+fi
+
+
 # tarih klasoru olustururuz. Boylece her gun alinan yedekler ayni klasorde depolanir.
 if [ -d $mysql_sql_yedek_klasoru/$tarih ]; then
 rm -rf $mysql_sql_yedek_klasoru/$tarih/*
@@ -73,44 +96,117 @@ else
  mkdir $mysql_sql_yedek_klasoru/$tarih
 fi
 
-echo
-echo "sql yedek almaya basliyor"
 
+
+
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "SQL yedek almaya basliyor"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
 find /var/lib/mysql/ -type d | cut -d. -f1 | cut -d/ -f5 > $mysql_sql_yedek_klasoru/$tarih/list
 _db="$(gawk -F: '{ print $1 }' $mysql_sql_yedek_klasoru/$tarih/list)"
 for u in $_db
 do
 
 sshpass -p $mysqlsifreniz mysqldump -u $mysql_kullanici_adi -p$1 ${u} > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}.sql
-echo "HAZIR > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}"
+echo "YEDEKLENDI > $mysql_sql_yedek_klasoru/$tarih/$zaman-${u}"
 done
 
+	echo "......."
+	echo "......."
 	echo "......."
 	echo "......."
 		echo "VERITABANLARI SQL FORMATINDA YEDEKLENDI: $mysql_sql_yedek_klasoru/$tarih"
 	echo "......."
 	echo "......."
+	echo "......."
+	echo "......."
 	
+	
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+		echo "SQL formatindaki butun veritabanlari tar.gz formatinda tek dosyada birlestiriliyor (ayri olarak).."
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
 	
 tar cvzf $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz $mysql_sql_yedek_klasoru/$tarih
 
-echo "TUM VERI TABANLARI tar.gz formatinda YEDEKLENDI: $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+		echo "tar.gz formatinda birlestirme bitti. Simdi tar.gz formatindaki yedegi tarihsel klasore tasiyoruz."
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+mv $mysql_ana_yedek_klasoru/$zaman-mysql.tar.gz $mysql_sql_yedek_klasoru/$tarih/$zaman-mysql.tar.gz
+
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+		echo "TUM VERI TABANLARI tar.gz formatinda YEDEKLENDI: $mysql_ana_yedek_klasoru/$tarih/$zaman-mysql.tar.gz"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
 
 if [ -z $yedek_sunucu_ip ]; then
 echo "Yedekleme aktif edilmedigi icin ayri bir sunucuya gonderilmedi."
 else
-	echo ""
-	echo ""
-
-	echo "Simdi mysql yedeklerini, belirledigmiz yedek sunucuya gonderiyoruz (rsync)"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+		echo "Simdi mysql yedeklerini, belirledigmiz yedek sunucuya gonderiyoruz (rsync)"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+	
 	ssh-keyscan -t rsa $yedek_sunucu_ip >> ~/.ssh/known_hosts
 	sshpass -p $yedek_sunucu_sifresi rsync -avzu -t -l $mysql_ana_yedek_klasoru $yedek_sunucu_kullanici@$yedek_sunucu_ip:$yedek_sunucu_yuklenecek_yer
 
 	echo "......."
 	echo "......."
-	echo "Yedekleme islemide bitti.."
 	echo "......."
 	echo "......."
+		echo "Yedekleme islemide bitti.."
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+	
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "Eski dosyalar silinmeye basliyor (son yedek haric)"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+		rm -rf $mysql_ana_yedek_klasoru/eski_yedekler/*
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "Silme islemi basarili"
+	echo "......."
+	echo "......."
+	echo "......."
+	echo "......."
+	
 fi
 
 echo "****************************"
